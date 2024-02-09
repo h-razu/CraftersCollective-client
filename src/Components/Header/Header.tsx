@@ -3,35 +3,94 @@ import {
   Box,
   Button,
   Container,
+  Divider,
   IconButton,
   Menu,
   MenuItem,
-  Stack,
   Typography,
 } from "@mui/material";
-import { useState } from "react";
-import { Link, NavLink, useLocation } from "react-router-dom";
+import React, { useState } from "react";
+import { NavLink, useLocation } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
+import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 
 const pages = [
   {
     name: "Home",
-    link: "/",
+    path: "/",
   },
   {
     name: "Product",
-    link: "/product",
+    path: "/product",
   },
   {
     name: "About",
-    link: "/product",
+    path: "/product",
+  },
+  {
+    name: "Join | Login",
+    path: "/login",
   },
 ];
+
+const beforeHoverStyle = {
+  content: '""',
+  position: "absolute",
+  width: "80%",
+  transform: "scaleX(0)",
+  height: "2px",
+  bottom: 8,
+  left: 10,
+  backgroundColor: "#27374d",
+  transformOrigin: "bottom right",
+  transition: "transform 0.30s ease-out",
+};
+const afterHoverStyle = {
+  transform: "scaleX(1)",
+  transformOrigin: "bottom left",
+};
 
 const Header = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const pathname = useLocation();
+
+  const menuItems = (
+    <React.Fragment>
+      {pages.map((page, index) => (
+        <MenuItem
+          disableRipple
+          key={index}
+          onClick={() => setAnchorEl(null)}
+          sx={{
+            fontSize: { xs: "18px", md: "22px" },
+            fontWeight: 600,
+            position: {
+              xs: "static",
+              md: "relative",
+            },
+            "&:hover": {
+              backgroundColor: { md: "transparent" },
+            },
+            "&::after": { md: beforeHoverStyle },
+            "&:hover::after": { md: afterHoverStyle },
+          }}
+        >
+          <NavLink
+            to={page.path}
+            style={{
+              textDecoration: "none",
+              color:
+                String(pathname.pathname) === page.path ? "#27374d" : "#808080",
+            }}
+          >
+            {page.name}
+          </NavLink>
+        </MenuItem>
+      ))}
+    </React.Fragment>
+  );
+
   return (
     <AppBar
       sx={{
@@ -56,7 +115,9 @@ const Header = () => {
             }}
           >
             <IconButton onClick={(event) => setAnchorEl(event.currentTarget)}>
-              <MenuIcon sx={{ fontSize: "35px", color: "black" }} />
+              <MenuIcon
+                sx={{ fontSize: { xs: "25px", md: "35px" }, color: "black" }}
+              />
             </IconButton>
             <Menu
               anchorEl={anchorEl}
@@ -72,64 +133,40 @@ const Header = () => {
                 horizontal: "left",
               }}
             >
-              {pages.map((page, index) => (
-                <MenuItem key={index} onClick={() => setAnchorEl(null)}>
-                  <NavLink
-                    to={page.link}
-                    style={{
-                      textDecoration: "none",
-                      fontSize: "25px",
-                      fontWeight: 600,
-                      color:
-                        String(pathname.pathname) === page.link
-                          ? "#27374d"
-                          : "#808080",
-                    }}
-                  >
-                    {page.name}
-                  </NavLink>
-                </MenuItem>
-              ))}
-              <MenuItem
-                onClick={() => setAnchorEl(null)}
-                sx={{
-                  display: {
-                    xs: "flex",
-                    sm: "none",
-                  },
-                }}
-              >
-                <NavLink
-                  to="/login"
-                  style={{
-                    textDecoration: "none",
-                    fontSize: "25px",
-                    fontWeight: 600,
-                    color:
-                      String(pathname.pathname) === "/login"
-                        ? "#27374d"
-                        : "#808080",
+              {menuItems}
+              <Divider sx={{ display: { xs: "block", sm: "none" } }} />
+              <MenuItem>
+                <Button
+                  sx={{
+                    display: {
+                      xs: "flex",
+                      sm: "none",
+                    },
+                    fontSize: "18px",
                   }}
                 >
-                  Join | Login
-                </NavLink>
+                  Go To Cart
+                </Button>
               </MenuItem>
             </Menu>
           </Box>
           <IconButton disableRipple>
-            <Link to="/" style={{ textDecoration: "none" }}>
+            <NavLink to="/" style={{ textDecoration: "none" }}>
               <Typography
                 variant="h5"
                 color="primary"
                 sx={{
                   fontWeight: 600,
                   fontFamily: "Redressed",
-                  fontSize: 40,
+                  fontSize: {
+                    xs: 25,
+                    md: 35,
+                  },
                 }}
               >
                 CraftersCollective
               </Typography>
-            </Link>
+            </NavLink>
           </IconButton>
 
           <Box
@@ -138,45 +175,26 @@ const Header = () => {
                 xs: "none",
                 md: "flex",
               },
+              width: "40%",
               alignItems: "center",
+              justifyContent: "space-between",
             }}
           >
-            {pages.map((page, idx) => (
-              <NavLink
-                key={idx}
-                to={page.link}
-                style={{
-                  textDecoration: "none",
-                  fontSize: "25px",
-                  fontWeight: 600,
-                  marginRight: 15,
-                  color:
-                    String(pathname.pathname) === page.link
-                      ? "#27374d"
-                      : "#808080",
-                }}
-              >
-                {page.name}
-              </NavLink>
-            ))}
+            {menuItems}
           </Box>
-          <Box sx={{ display: { xs: "none", sm: "flex" } }}>
-            <NavLink
-              to="/login"
-              style={{
-                textDecoration: "none",
-                fontSize: "25px",
-                fontWeight: 600,
-                marginRight: 15,
-                color:
-                  String(pathname.pathname) === "/login"
-                    ? "#27374d"
-                    : "#808080",
-              }}
-            >
-              Join | Login
-            </NavLink>
-          </Box>
+          <IconButton
+            sx={{
+              display: {
+                xs: "none",
+                sm: "flex",
+              },
+            }}
+          >
+            <ShoppingCartOutlinedIcon
+              color="primary"
+              sx={{ fontSize: { xs: "25px", md: "35px" } }}
+            />
+          </IconButton>
         </Box>
       </Container>
     </AppBar>
