@@ -10,7 +10,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useState } from "react";
 
 const CartDrawer = () => {
-  const [isCartOpen, setIsCartOpen] = useState(true);
+  const [isCartOpen, setIsCartOpen] = useState(false);
   return (
     <Box>
       <Drawer

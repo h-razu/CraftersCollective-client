@@ -47,6 +47,7 @@ const Hero = () => {
             fontSize: { xs: "30px", md: "30px", xl: "50px" },
             fontWeight: 700,
             color: "text.primary",
+            textAlign: "center",
           }}
         >
           Crafted to Inspire, Made to Last
@@ -64,7 +65,7 @@ const Hero = () => {
           crafted with dedication and care. Elevate your living space and
           wardrobe with our handpicked selection of home decor, fashion, and
           accessories, knowing that every purchase supports the artisans behind
-          these timeless creations
+          these timeless creations.
         </Typography>
         <Button variant="outlined" size="large">
           Explore Our Products{" "}

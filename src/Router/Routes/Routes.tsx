@@ -4,11 +4,13 @@ import Home from "../../pages/Home";
 import Product from "../../pages/Product/Product";
 import Register from "../../pages/Register/Register";
 import Login from "../../pages/Login/Login";
+import Error from "../../pages/Shared/Error/Error";
 
 export const routes = createBrowserRouter([
   {
     path: "/",
     element: <MainLayout></MainLayout>,
+    errorElement: <Error />,
     children: [
       {
         path: "/",
@@ -27,5 +29,9 @@ export const routes = createBrowserRouter([
         element: <Login />,
       },
     ],
+  },
+  {
+    path: "*",
+    element: <Error />,
   },
 ]);
