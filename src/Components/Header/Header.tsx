@@ -20,7 +20,7 @@ const pages = [
     path: "/",
   },
   {
-    name: "Product",
+    name: "Products",
     path: "/product",
   },
   {
@@ -58,35 +58,34 @@ const Header = () => {
   const menuItems = (
     <React.Fragment>
       {pages.map((page, index) => (
-        <MenuItem
-          disableRipple
-          key={index}
-          onClick={() => setAnchorEl(null)}
-          sx={{
-            fontSize: { xs: "18px", md: "22px" },
-            fontWeight: 600,
-            position: {
-              xs: "static",
-              md: "relative",
-            },
-            "&:hover": {
-              backgroundColor: { md: "transparent" },
-            },
-            "&::after": { md: beforeHoverStyle },
-            "&:hover::after": { md: afterHoverStyle },
+        <NavLink
+          to={page.path}
+          style={{
+            textDecoration: "none",
+            color: String(pathname.pathname) === page.path ? "#000" : "#979BA1",
           }}
         >
-          <NavLink
-            to={page.path}
-            style={{
-              textDecoration: "none",
-              color:
-                String(pathname.pathname) === page.path ? "#000" : "#979BA1",
+          <MenuItem
+            disableRipple
+            key={index}
+            onClick={() => setAnchorEl(null)}
+            sx={{
+              fontSize: { xs: "18px", md: "22px" },
+              fontWeight: 600,
+              position: {
+                xs: "static",
+                md: "relative",
+              },
+              "&:hover": {
+                backgroundColor: { md: "transparent" },
+              },
+              "&::after": { md: beforeHoverStyle },
+              "&:hover::after": { md: afterHoverStyle },
             }}
           >
             {page.name}
-          </NavLink>
-        </MenuItem>
+          </MenuItem>
+        </NavLink>
       ))}
     </React.Fragment>
   );
