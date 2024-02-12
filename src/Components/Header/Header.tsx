@@ -36,18 +36,18 @@ const pages = [
 const beforeHoverStyle = {
   content: '""',
   position: "absolute",
-  width: "80%",
+  width: "70%",
   transform: "scaleX(0)",
   height: "2px",
-  bottom: 8,
-  left: 10,
-  backgroundColor: "#27374d",
-  transformOrigin: "bottom right",
-  transition: "transform 0.30s ease-out",
+  bottom: 5,
+  left: "15%",
+  backgroundColor: "#979BA1",
+  // transformOrigin: "bottom right",
+  transition: "transform 0.35s ease-out",
 };
 const afterHoverStyle = {
   transform: "scaleX(1)",
-  transformOrigin: "bottom left",
+  // transformOrigin: "bottom left",
 };
 
 const Header = () => {
@@ -81,7 +81,7 @@ const Header = () => {
             style={{
               textDecoration: "none",
               color:
-                String(pathname.pathname) === page.path ? "#27374d" : "#808080",
+                String(pathname.pathname) === page.path ? "#000" : "#979BA1",
             }}
           >
             {page.name}
@@ -95,7 +95,7 @@ const Header = () => {
     <AppBar
       sx={{
         padding: 1,
-        backgroundColor: "#FFFFFF",
+        backgroundColor: "#FFF",
         marginBottom: 2,
       }}
       position="sticky"
@@ -116,7 +116,7 @@ const Header = () => {
           >
             <IconButton onClick={(event) => setAnchorEl(event.currentTarget)}>
               <MenuIcon
-                sx={{ fontSize: { xs: "25px", md: "35px" }, color: "black" }}
+                sx={{ fontSize: { xs: "25px", md: "35px" }, color: "primary" }}
               />
             </IconButton>
             <Menu
@@ -154,7 +154,7 @@ const Header = () => {
             <NavLink to="/" style={{ textDecoration: "none" }}>
               <Typography
                 variant="h5"
-                color="primary"
+                color="text.primary"
                 sx={{
                   fontWeight: 600,
                   fontFamily: "Redressed",

@@ -3,13 +3,12 @@ import { createTheme } from "@mui/material";
 export const themeLight = createTheme({
   palette: {
     primary: {
-      main: "#526D82",
+      main: "#646669",
     },
-    background: {
-      default: "#DDE6ED",
-    },
+
     text: {
-      primary: "#27374d",
+      primary: "#646669",
+      secondary: "#979BA1",
     },
   },
   typography: {
@@ -18,5 +17,14 @@ export const themeLight = createTheme({
     fontWeightRegular: 400,
     fontWeightMedium: 600,
     fontWeightBold: 700,
+  },
+  components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        body: {
+          backgroundImage: "url(/images/bg.svg)",
+        },
+      },
+    },
   },
 });
