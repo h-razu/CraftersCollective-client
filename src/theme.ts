@@ -7,7 +7,8 @@ export const themeLight = createTheme({
     },
 
     text: {
-      primary: "#646669",
+      // primary: "#646669",
+      primary: "#000",
       secondary: "#979BA1",
     },
   },

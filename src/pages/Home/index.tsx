@@ -7,7 +7,7 @@ const Home = () => {
   useTitle("Home");
 
   return (
-    <Stack spacing={4}>
+    <Stack spacing={12}>
       <Hero />
       <Features />
     </Stack>

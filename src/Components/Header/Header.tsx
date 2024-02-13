@@ -59,6 +59,7 @@ const Header = () => {
     <React.Fragment>
       {pages.map((page, index) => (
         <NavLink
+          key={index}
           to={page.path}
           style={{
             textDecoration: "none",
@@ -67,7 +68,6 @@ const Header = () => {
         >
           <MenuItem
             disableRipple
-            key={index}
             onClick={() => setAnchorEl(null)}
             sx={{
               fontSize: { xs: "18px", md: "22px" },

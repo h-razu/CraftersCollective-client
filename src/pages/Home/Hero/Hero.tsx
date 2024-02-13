@@ -18,8 +18,8 @@ const Hero = () => {
           alt="hero-area-img"
           width="100%"
           style={{
-            borderRadius: "25px",
-            objectFit: "contain",
+            borderRadius: "10px",
+            objectFit: "cover",
             opacity: "0.9",
           }}
         />
@@ -44,7 +44,7 @@ const Hero = () => {
           variant="h1"
           component="div"
           sx={{
-            fontSize: { xs: "30px", md: "30px", xl: "50px" },
+            fontSize: { xs: "35px", xl: "50px" },
             fontWeight: 700,
             color: "text.primary",
             textAlign: "center",
