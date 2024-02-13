@@ -1,7 +1,7 @@
 import { Box, Grid, Stack, Typography } from "@mui/material";
-import features1 from "../../assets/images/features-1.jpg";
-import features2 from "../../assets/images/features-2.jpg";
-import features3 from "../../assets/images/features-3.jpg";
+import features1 from "../../../assets/images/features-1.jpg";
+import features2 from "../../../assets/images/features-2.jpg";
+import features3 from "../../../assets/images/features-3.jpg";
 
 const Features = () => {
   return (
