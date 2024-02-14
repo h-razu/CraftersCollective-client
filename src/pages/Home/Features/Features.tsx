@@ -29,8 +29,9 @@ const Features = () => {
             textAlign: "center",
           }}
         >
-          CraftersCollective offers a unique online marketplace for artisan and
-          handcrafted products.
+          Explore an exceptional selection of artisan and handcrafted products
+          at CraftersCollective. Indulge in the unique and extraordinary
+          creations that set us apart.
         </Typography>
       </Stack>
       <Box>
