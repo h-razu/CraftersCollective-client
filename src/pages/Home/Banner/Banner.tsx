@@ -1,34 +1,31 @@
 import { Box, Button, Stack, Typography } from "@mui/material";
-import heroImage from "../../../assets/images/hero.png";
+import bannerImage from "../../../assets/images/banner.png";
 import { useNavigate } from "react-router-dom";
 
-const Hero = () => {
+const Banner = () => {
   const navigate = useNavigate();
   return (
-    <Stack
-      sx={{
-        position: "relative",
-      }}
-    >
+    <Stack sx={{ position: "relative" }}>
       <img
-        src={heroImage}
-        alt="heroImage"
+        src={bannerImage}
+        alt="bannerImage"
         width="100%"
         height="400px"
         style={{
           objectFit: "cover",
           filter: "brightness(50%)",
-          borderRadius: "8px",
+          borderRadius: "5px",
         }}
       />
       <Box
         sx={{
           display: "flex",
           flexDirection: "column",
-          alignItems: "center",
+          alignItems: "flex-start",
           position: "absolute",
-          top: "20%",
-          rowGap: { xs: 1, sm: 2, xl: 3 },
+          top: { xs: "30%", md: "20%" },
+          left: "5%",
+          rowGap: { xs: 2, xl: 3 },
           overflowY: "hidden",
         }}
       >
@@ -36,29 +33,25 @@ const Hero = () => {
           variant="h1"
           component="div"
           sx={{
-            fontSize: { xs: "25px", md: "30px", xl: "50px" },
+            fontSize: { xs: "20px", md: "25px", xl: "40px" },
             fontWeight: 700,
             color: "#fff",
-            textAlign: "center",
           }}
         >
-          Crafted to Inspire, Made to Last
+          Every purchase pays an artist.
         </Typography>
-
         <Typography
           variant="body1"
           sx={{
-            fontSize: { xs: "14px", sm: "18px", xl: "25px" },
+            fontSize: { xs: "12px", sm: "16px", xl: "22px" },
             color: "#eaf4fc",
-            textAlign: "center",
-            width: { xs: "100%", sm: "90%", md: "75%" },
+            width: { xs: "90%", md: "70%" },
+            textAlign: "justify",
           }}
         >
-          CraftersCollective curates a collection of artisanal treasures, each
-          crafted with dedication and care. Elevate your living space and
-          wardrobe with our handpicked selection of home decor, fashion, and
-          accessories, knowing that every purchase supports the artisans behind
-          these timeless creations.
+          Empower creativity around the world. We are an open marketplace for
+          independent artists and crafter to upload and enable their work on a
+          wide array of art, home decor and more.
         </Typography>
         <Button
           variant="outlined"
@@ -69,17 +62,17 @@ const Hero = () => {
             transition: "all 0.5s ease-in",
             transformOrigin: "bottom left",
             "&:hover": {
-              backgroundColor: "#ecf3f9",
-              color: "#888BA8",
+              border: "1px solid #888BA8",
+              color: "#fff",
             },
           }}
-          onClick={() => navigate("/product")}
+          onClick={() => navigate("/about")}
         >
-          Explore Our Products
+          Learn More
         </Button>
       </Box>
     </Stack>
   );
 };
 
-export default Hero;
+export default Banner;

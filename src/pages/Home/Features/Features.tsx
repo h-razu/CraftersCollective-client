@@ -37,7 +37,7 @@ const Features = () => {
       <Box>
         <Grid
           container
-          spacing={{ xs: 1, md: 4 }}
+          spacing={1}
           sx={{
             alignItems: "center",
           }}

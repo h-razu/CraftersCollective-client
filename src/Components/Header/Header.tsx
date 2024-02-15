@@ -25,7 +25,7 @@ const pages = [
   },
   {
     name: "About",
-    path: "/product",
+    path: "/about",
   },
   {
     name: "Join | Login",
@@ -174,7 +174,7 @@ const Header = () => {
                 xs: "none",
                 md: "flex",
               },
-              width: "40%",
+              width: "auto",
               alignItems: "center",
               justifyContent: "space-between",
             }}
