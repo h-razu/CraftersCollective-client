@@ -96,7 +96,8 @@ const ProductCategory = () => {
                   height="300px"
                   style={{
                     objectFit: "cover",
-                    filter: "brightness(75%)",
+                    filter: "brightness(60%)",
+                    borderRadius: "5px",
                   }}
                 />
               </Box>
