@@ -19,8 +19,8 @@ const Footer = () => {
       variant="outlined"
       sx={{
         paddingY: { xs: 1, sm: 2, md: 3 },
-        marginTop: 5,
         backgroundColor: "#f0fff0",
+        marginTop: "auto",
       }}
     >
       <Container maxWidth="lg">

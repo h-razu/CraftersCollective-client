@@ -20,11 +20,26 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import loginImg from "../../assets/images/login.jpg";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+
+type Inputs = {
+  email: string;
+  password: string;
+};
 
 const Login = () => {
   const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<Inputs>();
+
+  const handleLoginSubmit = (data: Inputs) => {
+    console.log(data);
+  };
 
   return (
     <Paper
@@ -79,7 +94,7 @@ const Login = () => {
               Don't have an account yet?
               <span
                 style={{ color: "blue", marginLeft: 4, cursor: "pointer" }}
-                onClick={() => navigate("/register")}
+                onClick={() => navigate("/signup")}
               >
                 Sign up here
               </span>
@@ -98,7 +113,7 @@ const Login = () => {
             <Typography>OR</Typography>
           </Divider>
 
-          <form>
+          <form onSubmit={handleSubmit(handleLoginSubmit)}>
             <FormGroup row={true}>
               <FormControl fullWidth sx={{ marginY: 2 }}>
                 <InputLabel htmlFor="login-email">Email</InputLabel>
@@ -107,13 +122,16 @@ const Login = () => {
                   label="Email"
                   type="email"
                   placeholder="Email"
-                  required
                   startAdornment={
                     <InputAdornment position="start">
                       {<MailOutlineIcon />}
                     </InputAdornment>
                   }
+                  {...register("email", { required: true })}
                 />
+                {errors.email && (
+                  <span style={{ color: "red" }}>This field is required</span>
+                )}
               </FormControl>
               <FormControl fullWidth sx={{ marginY: 2 }}>
                 <InputLabel htmlFor="login-password">Password</InputLabel>
@@ -122,7 +140,6 @@ const Login = () => {
                   label="Password"
                   type={showPassword ? "text" : "password"}
                   placeholder="Password"
-                  required
                   startAdornment={
                     <InputAdornment position="start">
                       {<LockOutlinedIcon />}
@@ -141,7 +158,11 @@ const Login = () => {
                       </IconButton>
                     </InputAdornment>
                   }
+                  {...register("password", { required: true })}
                 />
+                {errors.password && (
+                  <span style={{ color: "red" }}>This field is required</span>
+                )}
               </FormControl>
               <Button
                 variant="outlined"

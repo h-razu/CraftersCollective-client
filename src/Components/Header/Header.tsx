@@ -1,5 +1,6 @@
 import {
   AppBar,
+  Avatar,
   Box,
   Button,
   Container,
@@ -10,9 +11,9 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
-import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
+import profile from "../../assets/images/profile.png";
 
 const pages = [
   {
@@ -26,10 +27,6 @@ const pages = [
   {
     name: "About",
     path: "/about",
-  },
-  {
-    name: "Join | Login",
-    path: "/login",
   },
 ];
 
@@ -52,8 +49,16 @@ const afterHoverStyle = {
 
 const Header = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [anchorUserEl, setAnchorUserEl] = useState<null | HTMLElement>(null);
+
+  const [role, setRole] = useState<string>("kjhhkj");
+  const [isEmail, setIsEmail] = useState<string>("");
 
   const pathname = useLocation();
+
+  const handleLogout = () => {
+    console.log("Log out");
+  };
 
   const menuItems = (
     <React.Fragment>
@@ -90,6 +95,95 @@ const Header = () => {
     </React.Fragment>
   );
 
+  const authItems = (
+    <React.Fragment>
+      {isEmail.length ? (
+        <>
+          {role.length ? (
+            <>
+              <IconButton
+                disableRipple
+                onClick={(event) => setAnchorUserEl(event.currentTarget)}
+              >
+                <Avatar
+                  alt="user_image"
+                  src={profile}
+                  sx={{ width: { xs: 36, md: 56 }, height: { xs: 36, md: 56 } }}
+                />
+              </IconButton>
+              <Menu
+                anchorEl={anchorUserEl}
+                open={Boolean(anchorUserEl)}
+                onClose={() => setAnchorUserEl(null)}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "center",
+                }}
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "center",
+                }}
+              >
+                <MenuItem sx={{ fontWeight: 700 }}>Hadayet Ullah Razu</MenuItem>
+                <Divider />
+                <MenuItem>
+                  <Link to="/about">
+                    <Button onClick={() => setAnchorUserEl(null)}>
+                      Dashboard
+                    </Button>
+                  </Link>
+                </MenuItem>
+                <MenuItem>
+                  <Button onClick={() => handleLogout()}>Log Out</Button>
+                </MenuItem>
+              </Menu>
+            </>
+          ) : (
+            <Link
+              to="/register"
+              style={{
+                textDecoration: "none",
+                color: "#000",
+              }}
+            >
+              <Button
+                variant="outlined"
+                sx={{
+                  fontSize: { xs: "16px", md: "20px" },
+                  fontWeight: 600,
+                  borderRadius: 8,
+                  backgroundColor: "#f0fff0",
+                }}
+              >
+                Get Started
+              </Button>
+            </Link>
+          )}
+        </>
+      ) : (
+        <Link
+          to="/login"
+          style={{
+            textDecoration: "none",
+            color: "#000",
+          }}
+        >
+          <Button
+            variant="outlined"
+            sx={{
+              fontSize: { xs: "16px", md: "20px" },
+              fontWeight: 600,
+              borderRadius: 8,
+              paddingX: 3,
+            }}
+          >
+            Login
+          </Button>
+        </Link>
+      )}
+    </React.Fragment>
+  );
+
   return (
     <AppBar
       sx={{
@@ -105,7 +199,6 @@ const Header = () => {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            flexDirection: { xs: "row-reverse", sm: "row" },
           }}
         >
           <Box
@@ -181,19 +274,7 @@ const Header = () => {
           >
             {menuItems}
           </Box>
-          <IconButton
-            sx={{
-              display: {
-                xs: "none",
-                sm: "flex",
-              },
-            }}
-          >
-            <ShoppingCartOutlinedIcon
-              color="primary"
-              sx={{ fontSize: { xs: "25px", md: "35px" } }}
-            />
-          </IconButton>
+          {authItems}
         </Box>
       </Container>
     </AppBar>
