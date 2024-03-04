@@ -22,7 +22,7 @@ import loginImg from "../../assets/images/login.jpg";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
-type Inputs = {
+type LoginInputs = {
   email: string;
   password: string;
 };
@@ -34,11 +34,13 @@ const Login = () => {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
-  } = useForm<Inputs>();
+  } = useForm<LoginInputs>();
 
-  const handleLoginSubmit = (data: Inputs) => {
+  const handleLoginSubmit = (data: LoginInputs) => {
     console.log(data);
+    reset();
   };
 
   return (
