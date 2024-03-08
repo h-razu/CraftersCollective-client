@@ -12,15 +12,20 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import GoogleIcon from "@mui/icons-material/Google";
 import MailOutlineIcon from "@mui/icons-material/MailOutline";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import loginImg from "../../assets/images/login.jpg";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import toast from "react-hot-toast";
+import { createUserWithGoogle, loginUser } from "../../features/auth/authSlice";
+import Loading from "../Shared/Loading/Loading";
+import useTitle from "../../Hooks/useTitle/useTitle";
 
 type LoginInputs = {
   email: string;
@@ -28,9 +33,18 @@ type LoginInputs = {
 };
 
 const Login = () => {
+  useTitle("Login");
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/";
+
+  const { isError, error, isSuccess, isLoading } = useAppSelector(
+    (state) => state.auth
+  );
+  const dispatch = useAppDispatch();
 
   const [showPassword, setShowPassword] = useState(false);
+  const [btnClick, setBtnClick] = useState<boolean>(false);
   const {
     register,
     handleSubmit,
@@ -38,10 +52,40 @@ const Login = () => {
     formState: { errors },
   } = useForm<LoginInputs>();
 
-  const handleLoginSubmit = (data: LoginInputs) => {
-    console.log(data);
-    reset();
+  useEffect(() => {
+    if (!isLoading && isError) {
+      toast.error(`Error Occurred: ${error}`, { id: "signIn" });
+    }
+
+    if (!isLoading && !isError && isSuccess) {
+      if (btnClick) {
+        toast.success("Successfully Login", { id: "signIn" });
+        setBtnClick(false);
+      }
+      navigate(from, { replace: true });
+    }
+  }, [isLoading, isError, error, isSuccess, reset, navigate, from, btnClick]);
+
+  const handleGoogleSignIn = async () => {
+    setBtnClick(true);
+    const user = await dispatch(createUserWithGoogle());
+
+    console.log(user.payload);
+
+    //   const displayName = user.displayName;
+    // const email = user.email;
+    // const photoURL = user.photoURL;
+    // const emailVerified = user.emailVerified;
   };
+
+  const handleLoginSubmit = (data: LoginInputs) => {
+    setBtnClick(true);
+    dispatch(loginUser(data));
+  };
+
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
     <Paper
@@ -107,6 +151,7 @@ const Login = () => {
             size="medium"
             fullWidth
             startIcon={<GoogleIcon />}
+            onClick={() => handleGoogleSignIn()}
           >
             Sign in with Google
           </Button>

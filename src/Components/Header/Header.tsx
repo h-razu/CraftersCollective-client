@@ -14,6 +14,10 @@ import React, { useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
 import profile from "../../assets/images/profile.png";
+import { useAppSelector } from "../../app/hooks";
+import auth from "../../firebase/firebase.config";
+import { signOut } from "firebase/auth";
+import toast from "react-hot-toast";
 
 const pages = [
   {
@@ -51,13 +55,18 @@ const Header = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [anchorUserEl, setAnchorUserEl] = useState<null | HTMLElement>(null);
 
-  const [role, setRole] = useState<string>("kjhhkj");
-  const [isEmail, setIsEmail] = useState<string>("");
-
   const pathname = useLocation();
 
+  const { user } = useAppSelector((state) => state.auth);
+
   const handleLogout = () => {
-    console.log("Log out");
+    signOut(auth)
+      .then(() => {
+        toast.success("Log Out Success");
+      })
+      .catch((error) => {
+        toast.error(error);
+      });
   };
 
   const menuItems = (
@@ -97,9 +106,9 @@ const Header = () => {
 
   const authItems = (
     <React.Fragment>
-      {isEmail.length ? (
+      {user.email ? (
         <>
-          {role.length ? (
+          {user.accountType ? (
             <>
               <IconButton
                 disableRipple
@@ -107,7 +116,7 @@ const Header = () => {
               >
                 <Avatar
                   alt="user_image"
-                  src={profile}
+                  src={user.profileImage ? user.profileImage : profile}
                   sx={{ width: { xs: 36, md: 56 }, height: { xs: 36, md: 56 } }}
                 />
               </IconButton>
@@ -124,7 +133,7 @@ const Header = () => {
                   horizontal: "center",
                 }}
               >
-                <MenuItem sx={{ fontWeight: 700 }}>Hadayet Ullah Razu</MenuItem>
+                <MenuItem sx={{ fontWeight: 700 }}>{user.name}</MenuItem>
                 <Divider />
                 <MenuItem>
                   <Link to="/about">
@@ -149,7 +158,7 @@ const Header = () => {
               <Button
                 variant="outlined"
                 sx={{
-                  fontSize: { xs: "16px", md: "20px" },
+                  fontSize: { xs: "12px", md: "20px" },
                   fontWeight: 600,
                   borderRadius: 8,
                   backgroundColor: "#f0fff0",

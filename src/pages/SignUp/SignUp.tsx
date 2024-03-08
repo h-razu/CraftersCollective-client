@@ -18,6 +18,11 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import registerImage from "../../assets/images/register.jpg";
 import { useForm, useWatch } from "react-hook-form";
+import UploadFileIcon from "@mui/icons-material/UploadFile";
+import toast from "react-hot-toast";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { createUser } from "../../features/auth/authSlice";
+import useTitle from "../../Hooks/useTitle/useTitle";
 
 type SignUpInputs = {
   firstName: string;
@@ -25,10 +30,17 @@ type SignUpInputs = {
   email: string;
   password: string;
   confirmPassword: string;
+  displayImage: File;
 };
 
 const SignUp = () => {
+  useTitle("Sign Up");
   const navigate = useNavigate();
+  const { error, isError, isLoading, isSuccess } = useAppSelector(
+    (state) => state.auth
+  );
+  const dispatch = useAppDispatch();
+
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] =
     useState<boolean>(false);
@@ -70,9 +82,64 @@ const SignUp = () => {
     }
   }, [password, confirmPassword]);
 
-  const handleSignUpSubmit = (data: SignUpInputs) => {
-    console.log(data);
-    reset();
+  useEffect(() => {
+    if (!isLoading && isError) {
+      toast.error(`Can't create User: ${error}`, { id: "createUser" });
+    }
+
+    if (!isLoading && !isError && isSuccess) {
+      toast.success("Successfully create the user", { id: "createUser" });
+      reset();
+      navigate("/");
+    }
+  }, [isLoading, isError, error, isSuccess, reset, navigate]);
+
+  //hosting the profile image to imgBB
+  const uploadImage = async () => {
+    const imageInput = document.getElementById(
+      "profileImage"
+    ) as HTMLInputElement;
+
+    if (!imageInput.files) return;
+    const imageData = new FormData();
+    imageData.append("image", imageInput.files[0]);
+    imageData.append(
+      "name",
+      "crafters_collective/profile_image/" + imageInput.files[0].name
+    );
+
+    const response = await fetch(
+      `https://api.imgbb.com/1/upload?key=${process.env.REACT_APP_IMAGE_HOSTING_API_KEY}`,
+      {
+        method: "POST",
+        body: imageData,
+      }
+    );
+
+    return response;
+  };
+
+  const handleSignUpSubmit = async (data: SignUpInputs) => {
+    const response = await uploadImage();
+    if (!response) return;
+
+    if (response.ok) {
+      const result = await response.json();
+
+      dispatch(createUser({ email: data.email, password: data.password }));
+
+      const userData = {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        accountType: "",
+        profileImageUrl: result.data.display_url,
+      };
+
+      console.log(userData);
+    } else {
+      toast.error("Error Occurred. Try again later.");
+    }
   };
 
   const fieldRequiredErrorMessage = (
@@ -204,9 +271,26 @@ const SignUp = () => {
                       </IconButton>
                     </InputAdornment>
                   }
-                  {...register("password", { required: true })}
+                  {...register("password", {
+                    required: {
+                      value: true,
+                      message: "This field is required",
+                    },
+                    minLength: {
+                      value: 8,
+                      message: "Password should be minimum 8 character",
+                    },
+                    maxLength: {
+                      value: 16,
+                      message: "Maximum 16 character is allowed",
+                    },
+                  })}
                 />
-                {errors.password && fieldRequiredErrorMessage}
+                {errors.password && (
+                  <span style={{ color: "red" }}>
+                    {errors.password.message}
+                  </span>
+                )}
               </FormControl>
               <FormControl fullWidth sx={{ marginY: 1 }}>
                 <InputLabel htmlFor="signUp-confirm-password">
@@ -241,6 +325,24 @@ const SignUp = () => {
                 {!isPasswordMatch && (
                   <span style={{ color: "red" }}>Password do not Match</span>
                 )}
+              </FormControl>
+              <FormControl fullWidth sx={{ marginY: 1 }}>
+                <InputLabel htmlFor="profile-image">Profile Image</InputLabel>
+                <OutlinedInput
+                  type="file"
+                  id="profileImage"
+                  inputProps={{
+                    accept: "image/png, image/jpeg",
+                  }}
+                  label="Profile Image"
+                  startAdornment={
+                    <InputAdornment position="start">
+                      <UploadFileIcon />
+                    </InputAdornment>
+                  }
+                  {...register("displayImage", { required: true })}
+                />
+                {errors.displayImage && fieldRequiredErrorMessage}
               </FormControl>
               <Button
                 variant="outlined"

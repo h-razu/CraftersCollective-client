@@ -3,263 +3,245 @@ import {
   Button,
   FormControl,
   FormGroup,
-  IconButton,
   InputAdornment,
   InputLabel,
-  MenuItem,
+  Modal,
   OutlinedInput,
   Paper,
-  Select,
-  SelectChangeEvent,
   Stack,
   Typography,
 } from "@mui/material";
 
 import { useNavigate } from "react-router-dom";
-import { ChangeEvent, useState } from "react";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import { FormEvent, useState } from "react";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
-import registerImage from "../../assets/images/register.jpg";
-import { useForm } from "react-hook-form";
+import buyerImage from "../../assets/images/buyer.png";
+import sellerImage from "../../assets/images/seller.png";
+import useTitle from "../../Hooks/useTitle/useTitle";
+import toast from "react-hot-toast";
+import Loading from "../Shared/Loading/Loading";
 
-type RegisterInputs = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  role: "buyer" | "seller";
-  storeName?: string;
-  storeImage?: File;
+const modalStyle = {
+  position: "absolute" as "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 400,
+  bgcolor: "background.paper",
+  boxShadow: 24,
+  p: 4,
+  borderRadius: 3,
 };
 
 const Register = () => {
+  useTitle("Register");
   const navigate = useNavigate();
-  const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [accountType, setAccountType] = useState<string>("");
-  const [storeImageFile, setStoreImageFile] = useState<File>();
+  const [isSellerModalOpen, setIsSellerModalOpen] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<RegisterInputs>();
+  const handleSellerSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const imgInput = document.getElementById("store-image") as HTMLInputElement;
 
-  const handleFileUpload = (event: ChangeEvent<HTMLInputElement>) => {
-    if (!event.target.files) {
-      return;
+    const storeName = document.getElementById("store-name") as HTMLInputElement;
+    console.log(storeName);
+
+    if (!imgInput.files) return;
+    setIsLoading(true);
+    const imageData = new FormData();
+    imageData.append("image", imgInput.files[0]);
+    imageData.append(
+      "name",
+      "crafters_collective/store_image/" + imgInput.files[0].name
+    );
+
+    const response = await fetch(
+      `https://api.imgbb.com/1/upload?key=${process.env.REACT_APP_IMAGE_HOSTING_API_KEY}`,
+      {
+        method: "POST",
+        body: imageData,
+      }
+    );
+
+    if (response.ok) {
+      const result = await response.json();
+
+      const sellerData = {
+        accountType: "seller",
+        storeName: storeName.value,
+        storeImage: result.data.display_url,
+        accountVerified: false,
+      };
+      console.log(sellerData);
+      setIsLoading(false);
+      toast.success("Account Registration Successful");
+      navigate("/");
+    } else {
+      toast.error("Error Occurred. Try again later.");
+      setIsLoading(false);
     }
-    const storeImage = event.target.files[0];
-    console.log(storeImage);
-    setStoreImageFile(storeImage);
   };
 
-  const handleRegisterSubmit = (data: RegisterInputs) => {
-    console.log({ ...data, role: accountType });
+  const handleBuyerSubmit = () => {
+    const buyerData = {
+      accountType: "buyer",
+    };
+    console.log(buyerData);
+    toast.success("Account Registration Successful");
+    navigate("/");
   };
 
-  const fieldRequiredErrorMessage = (
-    <span style={{ color: "red" }}>This field is required</span>
-  );
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
-    <Paper
-      elevation={6}
-      sx={{
-        maxWidth: { sm: "500px", md: "1000px" },
-        margin: "auto",
-        padding: { xs: 1, md: 2 },
-        display: "flex",
-        flexDirection: { sm: "column", md: "row" },
-        justifyContent: "space-between",
-        alignItems: "center",
-      }}
-    >
-      <Box
+    <Stack sx={{ alignItems: "center" }}>
+      <Typography
+        variant="h5"
+        color="text.primary"
         sx={{
-          width: { sm: "100%", md: "50%" },
-          display: { xs: "none", sm: "flex" },
+          fontWeight: 500,
+          fontSize: {
+            xs: 25,
+            md: 35,
+          },
         }}
       >
-        <img
-          src={registerImage}
-          alt="registerImage"
-          width="100%"
-          style={{ objectFit: "cover" }}
-        />
-      </Box>
-      <Paper
-        variant="outlined"
-        sx={{ padding: { xs: 1, md: 3 }, width: { xs: "100%", md: "60%" } }}
+        Continue As...
+      </Typography>
+      <Box
+        sx={{
+          width: "100%",
+          marginTop: 3,
+          display: "flex",
+          flexDirection: {
+            xs: "column",
+            sm: "row",
+            justifyContent: "space-evenly",
+          },
+          gap: 4,
+        }}
       >
-        <Stack spacing={1}>
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              flexDirection: "column",
-            }}
-          >
+        <Paper
+          elevation={4}
+          sx={{ cursor: "pointer" }}
+          onClick={() => handleBuyerSubmit()}
+        >
+          <Stack padding={2}>
+            <img
+              src={buyerImage}
+              alt="buyer_image"
+              width="100%"
+              height="300px"
+              style={{
+                objectFit: "contain",
+                borderRadius: "2px",
+              }}
+            />
+            <Typography
+              variant="subtitle1"
+              sx={{
+                fontSize: { xs: "18px", sm: "25px", md: "30px", xl: "35px" },
+                fontWeight: 600,
+                textAlign: "center",
+              }}
+            >
+              Buyer
+            </Typography>
+          </Stack>
+        </Paper>
+        <Paper
+          elevation={4}
+          sx={{ cursor: "pointer" }}
+          onClick={() => setIsSellerModalOpen(true)}
+        >
+          <Stack padding={2}>
+            <img
+              src={sellerImage}
+              alt="seller_image"
+              width="100%"
+              height="300px"
+              style={{
+                objectFit: "contain",
+                borderRadius: "2px",
+              }}
+            />
+            <Typography
+              variant="subtitle1"
+              sx={{
+                fontSize: { xs: "18px", sm: "25px", md: "30px", xl: "35px" },
+                fontWeight: 600,
+                textAlign: "center",
+              }}
+            >
+              Seller
+            </Typography>
+          </Stack>
+        </Paper>
+      </Box>
+
+      {/* Modal for seller  */}
+      <Modal
+        open={isSellerModalOpen}
+        onClose={() => setIsSellerModalOpen(false)}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={modalStyle}>
+          <Stack>
             <Typography
               variant="h4"
               sx={{
                 fontWeight: 600,
-                fontSize: { xs: "20px", md: "30px" },
+                textAlign: "center",
               }}
             >
-              Create an Account
+              Store Information
             </Typography>
-            <Typography
-              variant="body1"
-              sx={{ color: "text.secondary", fontWeight: 500 }}
-            >
-              Already have an account?
-              <span
-                style={{ color: "blue", marginLeft: 4, cursor: "pointer" }}
-                onClick={() => navigate("/login")}
-              >
-                Login here
-              </span>
-            </Typography>
-          </Box>
-
-          <form onSubmit={handleSubmit(handleRegisterSubmit)}>
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: { xs: "column", md: "row" },
-                alignItems: "center",
-                gap: 1,
-              }}
-            >
-              <FormControl fullWidth sx={{ marginY: 1 }}>
-                <InputLabel htmlFor="firstName">First Name</InputLabel>
-                <OutlinedInput
-                  id="first name"
-                  label="First Name"
-                  type="text"
-                  placeholder="First Name"
-                  {...register("firstName", { required: true })}
-                />
-                {errors.firstName && fieldRequiredErrorMessage}
-              </FormControl>
-              <FormControl fullWidth sx={{ marginY: 1 }}>
-                <InputLabel htmlFor="lastName">Last Name</InputLabel>
-                <OutlinedInput
-                  id="last name"
-                  label="Last Name"
-                  type="text"
-                  placeholder="Last Name"
-                  {...register("lastName", { required: true })}
-                />
-                {errors.lastName && fieldRequiredErrorMessage}
-              </FormControl>
-            </Box>
-            <FormGroup row={true}>
-              <FormControl fullWidth sx={{ marginY: 1 }}>
-                <InputLabel htmlFor="login-email">Email</InputLabel>
-                <OutlinedInput
-                  id="login-email"
-                  label="Email"
-                  type="email"
-                  placeholder="Email"
-                  {...register("email", { required: true })}
-                />
-                {errors.email && fieldRequiredErrorMessage}
-              </FormControl>
-              <FormControl fullWidth sx={{ marginY: 1 }}>
-                <InputLabel htmlFor="login-password">Password</InputLabel>
-                <OutlinedInput
-                  id="login-password"
-                  label="Password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Password"
-                  endAdornment={
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? (
-                          <VisibilityOffIcon />
-                        ) : (
-                          <VisibilityIcon />
-                        )}
-                      </IconButton>
-                    </InputAdornment>
-                  }
-                  {...register("password", { required: true })}
-                />
-                {errors.password && fieldRequiredErrorMessage}
-              </FormControl>
-              <FormControl fullWidth sx={{ marginY: 1 }}>
-                <InputLabel id="account-type-label">Account Type</InputLabel>
-                <Select
-                  labelId="account-type-label"
-                  id="account-type"
-                  value={accountType}
-                  label="Account Type"
-                  onChange={(e: SelectChangeEvent) =>
-                    setAccountType(e.target.value as string)
-                  }
+            <form onSubmit={handleSellerSubmit}>
+              <FormGroup>
+                <FormControl fullWidth sx={{ marginY: 2 }}>
+                  <InputLabel htmlFor="store-name">Store Name</InputLabel>
+                  <OutlinedInput
+                    id="store-name"
+                    label="Store Name"
+                    type="text"
+                    placeholder="Store Name"
+                    required
+                  />
+                </FormControl>
+                <FormControl fullWidth sx={{ marginY: 2 }}>
+                  <InputLabel htmlFor="store-image">Store Image</InputLabel>
+                  <OutlinedInput
+                    type="file"
+                    id="store-image"
+                    inputProps={{
+                      accept: "image/png, image/jpeg",
+                    }}
+                    label="Store Image"
+                    required
+                    startAdornment={
+                      <InputAdornment position="start">
+                        <UploadFileIcon />
+                      </InputAdornment>
+                    }
+                  />
+                </FormControl>
+                <Button
+                  variant="outlined"
+                  size="large"
+                  type="submit"
+                  sx={{ width: "50%", margin: "auto" }}
                 >
-                  <MenuItem value={"buyer"}>Buyer</MenuItem>
-                  <MenuItem value={"seller"}>Seller</MenuItem>
-                </Select>
-              </FormControl>
-              {accountType === "seller" && (
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: { xs: "column", md: "row" },
-                    alignItems: "center",
-                    gap: 1,
-                  }}
-                >
-                  <FormControl fullWidth sx={{ marginY: 1 }}>
-                    <InputLabel htmlFor="store-name">Store Name</InputLabel>
-                    <OutlinedInput
-                      id="store-name"
-                      label="Store Name"
-                      type="text"
-                      placeholder="Store Name"
-                      {...register("storeName", { required: true })}
-                    />
-                    {errors.storeName && fieldRequiredErrorMessage}
-                  </FormControl>
-                  <FormControl fullWidth sx={{ marginY: 1 }}>
-                    <InputLabel htmlFor="store-image">Store Image</InputLabel>
-                    <OutlinedInput
-                      type="file"
-                      inputProps={{
-                        accept: "image/png, image/jpeg",
-                      }}
-                      label="Store Image"
-                      // required
-                      startAdornment={
-                        <InputAdornment position="start">
-                          <UploadFileIcon />
-                        </InputAdornment>
-                      }
-                      // onChange={handleFileUpload}
-                      {...register("storeImage", { required: true })}
-                    />
-                    {errors.storeImage && fieldRequiredErrorMessage}
-                  </FormControl>
-                </Box>
-              )}
-              <Button
-                variant="outlined"
-                size="large"
-                type="submit"
-                sx={{ width: "50%", margin: "auto", marginTop: 2 }}
-              >
-                Register
-              </Button>
-            </FormGroup>
-          </form>
-        </Stack>
-      </Paper>
-    </Paper>
+                  Submit
+                </Button>
+              </FormGroup>
+            </form>
+          </Stack>
+        </Box>
+      </Modal>
+    </Stack>
   );
 };
 
