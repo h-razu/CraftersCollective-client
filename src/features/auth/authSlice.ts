@@ -45,7 +45,14 @@ export const createUserWithGoogle = createAsyncThunk(
     const provider = new GoogleAuthProvider();
     const userCredential = await signInWithPopup(auth, provider);
 
-    return userCredential.user;
+    const user = {
+      userName: userCredential.user.displayName,
+      email: userCredential.user.email,
+      accountType: "",
+      profileImageUrl: userCredential.user.photoURL,
+    };
+
+    return user;
   }
 );
 
@@ -66,7 +73,13 @@ export const loginUser = createAsyncThunk(
 export const getUserData = createAsyncThunk(
   "auth/getUserData",
   async (email: string) => {
-    return email;
+    const res = await fetch(`http://localhost:5000/api/v1/user/${email}`);
+    const data = await res.json();
+
+    if (data.success) {
+      return data.data;
+    }
+    return { email };
   }
 );
 
@@ -75,6 +88,10 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     toggleIsSuccess: (state, action) => {
+      state.isSuccess = false;
+    },
+    handleLogOut: (state, action) => {
+      state.user = { email: "", accountType: "", profileImage: "", name: "" };
       state.isSuccess = false;
     },
   },
@@ -131,7 +148,7 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.isError = false;
         state.error = "";
-        state.isSuccess = false;
+        state.isSuccess = true;
         if (action.payload.email) state.user.email = action.payload.email;
       })
       .addCase(loginUser.rejected, (state, action) => {
@@ -149,21 +166,29 @@ const authSlice = createSlice({
         state.isSuccess = false;
       })
       .addCase(getUserData.fulfilled, (state, action) => {
-        if (action.payload) state.user.email = action.payload;
+        if (action.payload.email) {
+          state.user.email = action.payload.email;
+          state.user.name = action.payload.userName;
+          state.user.accountType = action.payload.accountType;
+          state.user.profileImage = action.payload.profileImageUrl;
+          state.isSuccess = true;
+        }
         state.isLoading = false;
         state.isError = false;
         state.error = "";
-        state.isSuccess = true;
       })
       .addCase(getUserData.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.isSuccess = false;
         state.user.email = "";
+        state.user.name = "";
+        state.user.accountType = "";
+        state.user.profileImage = "";
         if (action.error.message) state.error = action.error.message;
       });
   },
 });
 
-export const { toggleIsSuccess } = authSlice.actions;
+export const { toggleIsSuccess, handleLogOut } = authSlice.actions;
 export default authSlice.reducer;

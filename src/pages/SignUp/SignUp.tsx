@@ -23,6 +23,8 @@ import toast from "react-hot-toast";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { createUser } from "../../features/auth/authSlice";
 import useTitle from "../../Hooks/useTitle/useTitle";
+import Loading from "../Shared/Loading/Loading";
+import { useStoreUserMutation } from "../../features/auth/authApi";
 
 type SignUpInputs = {
   firstName: string;
@@ -36,7 +38,7 @@ type SignUpInputs = {
 const SignUp = () => {
   useTitle("Sign Up");
   const navigate = useNavigate();
-  const { error, isError, isLoading, isSuccess } = useAppSelector(
+  const { error, isError, isLoading, isSuccess, user } = useAppSelector(
     (state) => state.auth
   );
   const dispatch = useAppDispatch();
@@ -46,6 +48,9 @@ const SignUp = () => {
     useState<boolean>(false);
   const [disabled, setDisabled] = useState<boolean>(true);
   const [isPasswordMatch, setIsPasswordMatch] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const [postUser, result] = useStoreUserMutation();
 
   const {
     register,
@@ -58,6 +63,7 @@ const SignUp = () => {
   const password = useWatch({ control, name: "password" });
   const confirmPassword = useWatch({ control, name: "confirmPassword" });
 
+  //match password and confirm password
   useEffect(() => {
     if (
       password !== undefined &&
@@ -82,17 +88,36 @@ const SignUp = () => {
     }
   }, [password, confirmPassword]);
 
+  //manage loading, error state for data uploading and firebase authentication
   useEffect(() => {
-    if (!isLoading && isError) {
-      toast.error(`Can't create User: ${error}`, { id: "createUser" });
+    if (!isLoading && isError && !result.isLoading && result.isError) {
+      toast.error(`Can't create User: ${error || result.error}`, {
+        id: "createUser",
+      });
+      setLoading(false);
     }
 
-    if (!isLoading && !isError && isSuccess) {
+    if (
+      //1st 3 for firebase authentication
+      !isLoading &&
+      !isError &&
+      isSuccess &&
+      //last 3 for store in mongodb via authApi
+      !result.isLoading &&
+      !result.isError &&
+      result.isSuccess
+    ) {
       toast.success("Successfully create the user", { id: "createUser" });
       reset();
+      setLoading(false);
       navigate("/");
     }
-  }, [isLoading, isError, error, isSuccess, reset, navigate]);
+
+    if (user.email) {
+      setLoading(false);
+      navigate("/");
+    }
+  }, [isLoading, isError, error, isSuccess, reset, navigate, result, user]);
 
   //hosting the profile image to imgBB
   const uploadImage = async () => {
@@ -120,31 +145,45 @@ const SignUp = () => {
   };
 
   const handleSignUpSubmit = async (data: SignUpInputs) => {
+    setLoading(true);
     const response = await uploadImage();
-    if (!response) return;
+    if (!response) {
+      setLoading(false);
+      return;
+    }
 
     if (response.ok) {
       const result = await response.json();
 
-      dispatch(createUser({ email: data.email, password: data.password }));
+      //firebase authentication
+      await dispatch(
+        createUser({ email: data.email, password: data.password })
+      );
+
+      const firstName = data.firstName;
+      const lastName = data.lastName;
 
       const userData = {
-        firstName: data.firstName,
-        lastName: data.lastName,
+        userName: firstName.concat(" ", lastName),
         email: data.email,
         accountType: "",
         profileImageUrl: result.data.display_url,
       };
-
-      console.log(userData);
+      //uploading user data to mongodb
+      postUser(userData);
     } else {
       toast.error("Error Occurred. Try again later.");
+      setLoading(false);
     }
   };
 
   const fieldRequiredErrorMessage = (
     <span style={{ color: "red" }}>This field is required</span>
   );
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <Paper

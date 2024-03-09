@@ -13,13 +13,16 @@ import {
 } from "@mui/material";
 
 import { useNavigate } from "react-router-dom";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import buyerImage from "../../assets/images/buyer.png";
 import sellerImage from "../../assets/images/seller.png";
 import useTitle from "../../Hooks/useTitle/useTitle";
 import toast from "react-hot-toast";
 import Loading from "../Shared/Loading/Loading";
+import { useUpdateUserMutation } from "../../features/auth/authApi";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { getUserData } from "../../features/auth/authSlice";
 
 const modalStyle = {
   position: "absolute" as "absolute",
@@ -36,18 +39,50 @@ const modalStyle = {
 const Register = () => {
   useTitle("Register");
   const navigate = useNavigate();
+  const { user } = useAppSelector((state) => state.auth);
+  const dispatch = useAppDispatch();
+
   const [isSellerModalOpen, setIsSellerModalOpen] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const [updateUser, { isLoading, isError, error, isSuccess }] =
+    useUpdateUserMutation();
+
+  //manage loading, error state for data uploading
+  useEffect(() => {
+    return () => {
+      if (!isLoading && isError) {
+        toast.error(`Can't Register User: ${error}`, {
+          id: "registerUser",
+        });
+        setLoading(false);
+      }
+
+      if (!isLoading && !isError && isSuccess) {
+        toast.success("Account Registration Successful", {
+          id: "registerUser",
+        });
+
+        setLoading(false);
+        setIsSellerModalOpen(false);
+        navigate("/");
+      }
+
+      if (user.accountType) {
+        setLoading(false);
+        navigate("/");
+      }
+    };
+  }, [isLoading, isError, isSuccess, navigate, error, user]);
 
   const handleSellerSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const imgInput = document.getElementById("store-image") as HTMLInputElement;
-
     const storeName = document.getElementById("store-name") as HTMLInputElement;
-    console.log(storeName);
 
     if (!imgInput.files) return;
-    setIsLoading(true);
+    setLoading(true);
+    //upload store image of seller account into imgBB
     const imageData = new FormData();
     imageData.append("image", imgInput.files[0]);
     imageData.append(
@@ -72,26 +107,28 @@ const Register = () => {
         storeImage: result.data.display_url,
         accountVerified: false,
       };
-      console.log(sellerData);
-      setIsLoading(false);
-      toast.success("Account Registration Successful");
-      navigate("/");
+
+      //update seller account
+      await updateUser({ data: sellerData, email: user.email });
+      dispatch(getUserData(user.email));
+      setLoading(false);
     } else {
       toast.error("Error Occurred. Try again later.");
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  const handleBuyerSubmit = () => {
+  const handleBuyerSubmit = async () => {
+    setLoading(true);
     const buyerData = {
       accountType: "buyer",
     };
-    console.log(buyerData);
-    toast.success("Account Registration Successful");
-    navigate("/");
+    //update the buyer account
+    await updateUser({ data: buyerData, email: user.email });
+    dispatch(getUserData(user.email));
   };
 
-  if (isLoading) {
+  if (loading) {
     return <Loading />;
   }
 

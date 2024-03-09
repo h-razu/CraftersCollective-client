@@ -26,6 +26,7 @@ import toast from "react-hot-toast";
 import { createUserWithGoogle, loginUser } from "../../features/auth/authSlice";
 import Loading from "../Shared/Loading/Loading";
 import useTitle from "../../Hooks/useTitle/useTitle";
+import { useStoreUserMutation } from "../../features/auth/authApi";
 
 type LoginInputs = {
   email: string;
@@ -42,6 +43,7 @@ const Login = () => {
     (state) => state.auth
   );
   const dispatch = useAppDispatch();
+  const [postUser, result] = useStoreUserMutation();
 
   const [showPassword, setShowPassword] = useState(false);
   const [btnClick, setBtnClick] = useState<boolean>(false);
@@ -53,6 +55,28 @@ const Login = () => {
   } = useForm<LoginInputs>();
 
   useEffect(() => {
+    //for google sign in
+    if (!isLoading && isError && !result.isLoading && result.isError) {
+      toast.error(`Error Occurred: ${error || result.error}`, { id: "signIn" });
+    }
+
+    if (
+      //for firebase auth
+      !isLoading &&
+      !isError &&
+      isSuccess &&
+      //for storing in mongodb
+      !result.isLoading &&
+      !result.isError &&
+      result.isSuccess
+    ) {
+      if (btnClick) {
+        toast.success("Successfully Login", { id: "signIn" });
+        setBtnClick(false);
+      }
+      navigate(from, { replace: true });
+    }
+    //for login
     if (!isLoading && isError) {
       toast.error(`Error Occurred: ${error}`, { id: "signIn" });
     }
@@ -64,22 +88,30 @@ const Login = () => {
       }
       navigate(from, { replace: true });
     }
-  }, [isLoading, isError, error, isSuccess, reset, navigate, from, btnClick]);
+  }, [
+    isLoading,
+    isError,
+    error,
+    isSuccess,
+    reset,
+    navigate,
+    from,
+    btnClick,
+    result,
+  ]);
 
   const handleGoogleSignIn = async () => {
     setBtnClick(true);
+    //firebase authentication for google sign in
     const user = await dispatch(createUserWithGoogle());
 
-    console.log(user.payload);
-
-    //   const displayName = user.displayName;
-    // const email = user.email;
-    // const photoURL = user.photoURL;
-    // const emailVerified = user.emailVerified;
+    //store the user in mongodb
+    postUser(user.payload);
   };
 
   const handleLoginSubmit = (data: LoginInputs) => {
     setBtnClick(true);
+    //login using firebase authentication
     dispatch(loginUser(data));
   };
 
