@@ -6,7 +6,7 @@ type Props = {
   children: JSX.Element;
 };
 
-const PrivateRoute = ({ children }: Props) => {
+const AdminRoute = ({ children }: Props) => {
   const location = useLocation();
   const { isLoading, user } = useAppSelector((state) => state.auth);
 
@@ -15,7 +15,10 @@ const PrivateRoute = ({ children }: Props) => {
   }
 
   if (user.email) {
-    return children;
+    if (user.accountType === "admin") {
+      return children;
+    }
+    return <Navigate to="/" state={{ from: location }} replace />;
   }
 
   if (!isLoading && !user.email) {
@@ -25,4 +28,4 @@ const PrivateRoute = ({ children }: Props) => {
   return <Navigate to="/" state={{ from: location }} replace />;
 };
 
-export default PrivateRoute;
+export default AdminRoute;
